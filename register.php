@@ -14,15 +14,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error = "All fields are required.";
     } else {
         // Check duplicate NID
+        $errors=[];
         $sql_check = "SELECT user_id FROM users WHERE nid = ?";
         $stmt_check = $conn->prepare($sql_check);
         $stmt_check->bind_param("s", $nid);
         $stmt_check->execute();
         $stmt_check->store_result();
+        //for duplicate email
+        $sql_check2 = "SELECT user_id FROM users WHERE email = ?";
+        $stmt_check2 = $conn->prepare($sql_check2);
+        $stmt_check2->bind_param("s", $email);
+        $stmt_check2->execute();
+        $stmt_check2->store_result();
 
+
+
+        if($stmt_check2->num_rows>0){
+            $errors[]="this email is already registered";
+        }
         if ($stmt_check->num_rows > 0) {
-            $error = "This NID is already registered.";
-        } else {
+            $errors[] = "This NID is already registered."; }
+        if(!empty($errors)){
+            $error=implode("<br>", $errors);
+        }    
+         else {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
             $sql = "INSERT INTO users (name, email, password_hash, nid) 
@@ -39,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             header("Location: login.php");
                 exit;
             } else {
-                $error = "Registration failed: " . $stmt->error;
+                $errors[] = "Registration failed: " . $stmt->error;
             }
         }
     }
