@@ -7,10 +7,10 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 
-if (isset($_GET['user_id'])) {
-    $user_id = intval($_GET['user_id']);
-    $stmt = $conn->prepare("DELETE FROM voters WHERE user_id=?");
-    $stmt->bind_param("i", $user_id);
+if (isset($_GET['voter_id'])) {
+    $voter_id = intval($_GET['voter_id']);
+    $stmt = $conn->prepare("DELETE FROM voters WHERE voter_id=?");
+    $stmt->bind_param("i", $voter_id);
     $stmt->execute();
 }
 
