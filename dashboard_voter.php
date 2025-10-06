@@ -17,8 +17,15 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $voter_result = $stmt->get_result();
 $voter_row = $voter_result->fetch_assoc();
-
 $voter_status = ($voter_row != null) ? (int)$voter_row['is_verified'] : 0;
+// Check if candidate record exists & get status
+$stmt2 = $conn->prepare("SELECT status FROM candidates WHERE user_id = ?");
+$stmt2->bind_param("i", $user_id);
+$stmt2->execute();
+$candidate_result = $stmt2->get_result();
+$candidate_row = $candidate_result->fetch_assoc();
+$candidate_status = $candidate_row ? $candidate_row['status'] : null;
+?>
 
 
 
@@ -78,15 +85,18 @@ $voter_status = ($voter_row != null) ? (int)$voter_row['is_verified'] : 0;
     <div class="container">
         <h2>Welcome Voter</h2>
 
-        <?php if ($voter_status !== 1): ?>
-            <!-- Not an approved voter -->
-            <a href="voter_register.php" class="button">Register as a Voter</a>
-        <?php else: ?>
-            <!-- Approved voter -->
-            <a href="face_auth.php" class="button">Verify Face & Vote</a>
-            <a href="view_results.php" class="button">View Results</a>
-            <a href="apply_candidate.php" class="button">register as a Candidate</a>
-        <?php endif; ?>
+        <?php if ($voter_status === 1): ?>
+    <a href="face_auth.php" class="button">Verify Face & Vote</a>
+    <a href="view_results.php" class="button">View Results</a>
+
+    <?php if (!$candidate_status || $candidate_status === 'rejected'): ?>
+        <!-- Show apply candidate button only if no candidate record or rejected -->
+        <a href="apply_candidate.php" class="button">Register as a Candidate</a>
+    <?php endif; ?>
+
+<?php else: ?>
+    <a href="voter_register.php" class="button">Register as a Voter</a>
+<?php endif; ?>
 
         <a href="logout.php" class="button logout">Logout</a>
     </div>
