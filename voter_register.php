@@ -26,10 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         move_uploaded_file($selfPhoto['tmp_name'], $selfPath)) {
 
         // Insert into voters table
-        $stmt = $conn->prepare("INSERT INTO voters (user_id, nid_photo_path, self_photo_path, is_verified) 
-                                VALUES (?, ?, ?, 0)
-                                ON DUPLICATE KEY UPDATE nid_photo_path=?, self_photo_path=?, is_verified=0");
-        $stmt->bind_param("issss", $user_id, $nidPath, $selfPath, $nidPath, $selfPath);
+        $stmt = $conn->prepare("update voters set nid_photo_path=?,self_photo_path=? where user_id=?");
+        $stmt->bind_param("ssi", $nidPath, $selfPath,$user_id);
         
         if ($stmt->execute()) {
             $message = "Registration submitted successfully. Awaiting admin approval.";
