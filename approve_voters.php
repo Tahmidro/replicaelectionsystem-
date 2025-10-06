@@ -44,9 +44,14 @@ $result = $conn->query($sql);
             background-color: #f1f1f1;
         }
         img {
-            max-width: 120px;
-            max-height: 80px;
-            border-radius: 4px;
+            max-width: 200px;
+            max-height: 140px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        img:hover {
+            transform: scale(1.05);
         }
         a.button {
             display: inline-block;
@@ -83,6 +88,46 @@ $result = $conn->query($sql);
         .btn-back:hover {
             background-color: #0056b3;
         }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+        .modal-content, #caption {
+            animation: zoom 0.3s;
+        }
+        @keyframes zoom {
+            from {transform: scale(0.7)}
+            to {transform: scale(1)}
+        }
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #bbb;
+        }
     </style>
 </head>
 <body>
@@ -104,17 +149,17 @@ $result = $conn->query($sql);
                     <td><?php echo htmlspecialchars($row['nid']); ?></td>
                     <td>
                         <?php if ($row['nid_photo_path']) { ?>
-                            <img src="<?php echo htmlspecialchars($row['nid_photo_path']); ?>" alt="NID Photo">
+                            <img src="<?php echo htmlspecialchars($row['nid_photo_path']); ?>" alt="NID Photo" onclick="openModal(this)">
                         <?php } else { echo "No file"; } ?>
                     </td>
                     <td>
                         <?php if ($row['self_photo_path']) { ?>
-                            <img src="<?php echo htmlspecialchars($row['self_photo_path']); ?>" alt="Self Photo">
+                            <img src="<?php echo htmlspecialchars($row['self_photo_path']); ?>" alt="Self Photo" onclick="openModal(this)">
                         <?php } else { echo "No file"; } ?>
                     </td>
                     <td>
-                        <a href="approve_voter.php?user_id=<?php echo $row['user_id']; ?>" class="button approve">Approve</a>
-                        <a href="reject_voter.php?user_id=<?php echo $row['user_id']; ?>" class="button reject">Reject</a>
+                        <a href="approve_voter.php?voter_id=<?php echo $row['voter_id']; ?>" class="button approve">Approve</a>
+                        <a href="reject_voter.php?voter_id=<?php echo $row['voter_id']; ?>" class="button reject">Reject</a>
                     </td>
                 </tr>
             <?php } ?>
@@ -123,5 +168,24 @@ $result = $conn->query($sql);
         <?php endif; ?>
     </table>
     <a href="dashboard_admin.php" class="btn-back">⬅ Back to Dashboard</a>
+
+    <!-- Modal -->
+    <div id="imgModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+
+    <script>
+        function openModal(imgElement) {
+            var modal = document.getElementById("imgModal");
+            var modalImg = document.getElementById("modalImg");
+            modal.style.display = "block";
+            modalImg.src = imgElement.src;
+        }
+
+        function closeModal() {
+            document.getElementById("imgModal").style.display = "none";
+        }
+    </script>
 </body>
 </html>
