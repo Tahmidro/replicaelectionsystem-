@@ -45,15 +45,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ssss", $name, $email, $hashed_password, $nid);
 
-           if ($stmt->execute()){
+           if ($stmt->execute()) {
             $user_id = $conn->insert_id;
-            $stmt2 = $conn->prepare("INSERT INTO voters (user_id) VALUES (?)");
-            $stmt2->bind_param("i", $user_id);
-            $stmt2->execute();
-            $_SESSION['success'] = "User registered successfully! Please log in.";
+            $_SESSION['success'] = "User registered successfully! Please log in and verify your email.";
             header("Location: login.php");
-                exit;
-            } else {
+            exit;
+           }
+           else {
                 $errors[] = "Registration failed: " . $stmt->error;
             }
         }

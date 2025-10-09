@@ -1,6 +1,10 @@
 <?php
 session_start();
 include "config.php";
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
 
 // Fetch pending candidates with voter info
 $sql = "SELECT u.name, u.email, u.nid, 

@@ -25,9 +25,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (move_uploaded_file($nidPhoto['tmp_name'], $nidPath) &&
         move_uploaded_file($selfPhoto['tmp_name'], $selfPath)) {
 
-        // Insert into voters table
-        $stmt = $conn->prepare("update voters set nid_photo_path=?,self_photo_path=? where user_id=?");
-        $stmt->bind_param("ssi", $nidPath, $selfPath,$user_id);
+        // Check if voter already exists
+       $stmtCheck = $conn->prepare("SELECT voter_id FROM voters WHERE user_id=?");
+       $stmtCheck->bind_param("i", $user_id);
+       $stmtCheck->execute();
+       $result = $stmtCheck->get_result();
+
+        if ($result->num_rows > 0) {
+    // Update existing
+        $stmt = $conn->prepare("UPDATE voters SET nid_photo_path=?, self_photo_path=? WHERE user_id=?");
+        $stmt->bind_param("ssi", $nidPath, $selfPath, $user_id);
+       }       
+        else {
+    // Insert new
+         $stmt = $conn->prepare("INSERT INTO voters (user_id, nid_photo_path, self_photo_path, is_verified) VALUES (?, ?, ?, 0)");
+          $stmt->bind_param("iss", $user_id, $nidPath, $selfPath);
+       }
+
         
         if ($stmt->execute()) {
             $message = "Registration submitted successfully. Awaiting admin approval.";

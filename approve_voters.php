@@ -1,6 +1,10 @@
 <?php
 session_start();
 include "config.php";
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
 
 // Get pending voters (not verified yet)
 $sql = "SELECT v.voter_id, u.name, u.email, u.nid, v.nid_photo_path, v.self_photo_path, v.is_verified,v.user_id

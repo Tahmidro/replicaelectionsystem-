@@ -100,10 +100,10 @@ if ($row) {
       <p><strong>Status:</strong> <?php echo htmlspecialchars($status); ?></p>
       <p><strong>Party:</strong> <?= htmlspecialchars($row['party']) ?></p>
       <p><strong>Manifesto:</strong><br><?= nl2br(htmlspecialchars($row['manifesto'])) ?></p>
+    <?php endif; ?>
 
 
-
-    <p><a href="view_results.php">View Results</a></p>
+    <p><a href="result.php">View Results</a></p>
     <a href="delete_account.php" class="danger" 
          onclick="return confirm('Are you sure you want to delete your account?');">Delete your account</a>
     <p><a href="logout.php">Logout</a></p>

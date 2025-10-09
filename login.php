@@ -2,6 +2,12 @@
 session_start();
 include "config.php";
 
+
+
+require 'src/PHPMailer.php';
+require 'src/SMTP.php';
+require 'src/Exception.php';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
@@ -15,31 +21,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $result->fetch_assoc();
 
         if (password_verify($password, $user['password_hash'])) {
+
+            // Check if email is verified
+            if ($user['email_verified'] == 0) {
+                $_SESSION['pending_user_id'] = $user['user_id'];
+                $_SESSION['pending_email'] = $user['email'];
+
+                // Generate OTP
+                $otp = rand(100000, 999999);
+                $_SESSION['email_otp'] = $otp;
+                $_SESSION['otp_expiry'] = time() + 300; // valid for 5 min
+
+                // Send OTP via PHPMailer
+                $mail = $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+
+                try {
+                    // Server settings
+                    $mail->isSMTP();
+                    $mail->Host = 'smtp.gmail.com';  // Replace with your SMTP host
+                    $mail->SMTPAuth = true;
+                    $mail->Username = 'tahmidosmani.uiu@gmail.com'; // SMTP username
+                    $mail->Password = 'yjoh tzkr dfki aokw';      // SMTP password
+                    $mail->SMTPSecure = 'tls';                    // or 'ssl'
+                    $mail->Port = 587;                            // or 465 for ssl
+
+                    // Recipients
+                    $mail->setFrom('tahmidosmani.uiu@gmail.comm', 'Election System');
+                    $mail->addAddress($user['email'], $user['email']);
+
+                    // Content
+                    $mail->isHTML(true);
+                    $mail->Subject = 'Your Election System Verification Code';
+                    $mail->Body    = "<p>Your OTP code is: <strong>$otp</strong></p>
+                                      <p>This code will expire in 5 minutes.</p>";
+                    $mail->AltBody = "Your OTP code is: $otp\nThis code will expire in 5 minutes.";
+
+                    $mail->send();
+                } catch (Exception $e) {
+                    $error = "OTP could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                }
+
+                if (!isset($error)) {
+                    header("Location: verify_email.php");
+                    exit;
+                }
+            }
+
+            // Normal login flow
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['is_admin'] = $user['is_admin'];
 
-            // ✅ If admin → send to admin dashboard
             if ($_SESSION['is_admin'] == 1) {
                 header("Location: dashboard_admin.php");
                 exit;
             }
 
-            // ✅ Check if candidate (approved)
             $stmt = $conn->prepare("SELECT candidate_id FROM candidates WHERE user_id=? AND status='approved'");
             $stmt->bind_param("i", $user['user_id']);
             $stmt->execute();
             $result = $stmt->get_result();
 
             if ($result->num_rows > 0) {
-                // Approved candidate
                 header("Location: dashboard_candidate.php");
                 exit;
             } else {
-                // Default voter
                 header("Location: dashboard_voter.php");
                 exit;
             }
-
         } else {
             $error = "Invalid password!";
         }

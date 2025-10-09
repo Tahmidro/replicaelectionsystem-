@@ -1,6 +1,9 @@
 <?php
 session_start();
 include "config.php";
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;}
 ?>
 <!DOCTYPE html>
 <html>
@@ -55,7 +58,7 @@ include "config.php";
       <li><a href="approve_voters.php">Approve voters</a></li>
       <li><a href="create_election.php">Create Election</a></li>
       <li><a href="assign_candidates.php">Assign Candidates</a></li>
-      <li><a href="view_results.php">View Live Results</a></li>
+      <li><a href="result.php">View Live Results</a></li>
       <li><a href="logout.php">Logout</a></li>
     </ul>
   </div>

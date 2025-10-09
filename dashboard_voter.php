@@ -85,9 +85,9 @@ $candidate_status = $candidate_row ? $candidate_row['status'] : null;
     <div class="container">
         <h2>Welcome Voter</h2>
 
-        <?php if ($voter_status === 1): ?>
-    <a href="face_auth.php" class="button">Verify Face & Vote</a>
-    <a href="view_results.php" class="button">View Results</a>
+       <?php if ($voter_status === 1): ?>
+    <a href="vote.php" class="button">Vote Now</a>
+    <a href="result.php" class="button">View Results</a>
 
     <?php if (!$candidate_status || $candidate_status === 'rejected'): ?>
         <!-- Show apply candidate button only if no candidate record or rejected -->
