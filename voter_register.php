@@ -1,6 +1,9 @@
 <?php
 session_start();
 include "config.php";
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;}
 
 
 $user_id = $_SESSION['user_id'];
@@ -122,3 +125,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <a href="dashboard_voter.php" class="btn-back">⬅ Back to Dashboard</a>
 </body>
 </html>
+
