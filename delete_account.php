@@ -1,6 +1,10 @@
 <?php
 session_start();
 include "config.php";
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;}
+
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
     $stmt = $conn->prepare("delete from users WHERE user_id = ?");
